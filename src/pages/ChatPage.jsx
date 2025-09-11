@@ -399,7 +399,7 @@ const ChatPage = () => {
                       message.emotionalTone === 'nostalgic' ? 'bg-gradient-to-r from-purple-400 to-indigo-500' :
                       message.emotionalTone === 'happy' ? 'bg-gradient-to-r from-emerald-400 to-teal-500' :
                       'bg-gradient-to-r from-gray-400 to-gray-500'
-                    }`}></div>
+                    }`} style={{width:'90%'}}></div>
                   )}
 
                   <div className="relative">
