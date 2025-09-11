@@ -67,7 +67,7 @@ const LandingPage = () => {
       quote: "It's like she's still here with me, sharing stories every morning...", 
       author: "Maria Thompson",
       role: "Daughter",
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b332db5a?w=100&h=100&fit=crop&crop=face"
+      avatar: "https://www.perfocal.com/blog/content/images/size/w960/2021/01/Perfocal_17-11-2019_TYWFAQ_100_standard-3.jpg"
     },
     { 
       quote: "I hear his laugh in the kitchen. Technology became magic.", 
@@ -197,11 +197,11 @@ const LandingPage = () => {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="absolute bottom-10 animate-bounce">
+          {/* <div className="absolute bottom-10 animate-bounce">
             <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center">
               <div className="w-1 h-3 bg-gradient-to-b from-violet-400 to-transparent rounded-full mt-2 animate-pulse" />
             </div>
-          </div>
+          </div> */}
         </section>
 
         {/* Features Section */}

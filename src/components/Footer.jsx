@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="relative z-20 py-12 text-center text-white/60 bg-black/20 backdrop-blur-sm border-t border-white/10">
+    <footer className="relative z-20 py-12 text-center text-white/60 bg-black/20 backdrop-blur-sm border-t border-white/10" style={{backgroundColor:'#36454f'}}>
       <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 text-left">
         <div>
           <h5 className="font-semibold text-white mb-4 bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
@@ -50,4 +50,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default Footer;

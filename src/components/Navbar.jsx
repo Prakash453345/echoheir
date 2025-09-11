@@ -9,7 +9,7 @@ const Navbar = () => {
   if (isAuthPage) return null;
 
   return (
-    <nav className="relative z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md bg-black/20 border-b border-white/10">
+    <nav className="relative z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md bg-black/20 border-b border-white/10" style={{backgroundColor:'#36454f'}}>
       <div className="flex items-center space-x-2">
         <Link to="/" className="flex items-center space-x-2">
           <span
@@ -53,4 +53,4 @@ const NavLink = ({ to, children }) => {
   );
 };
 
-export default Navbar;
+export default Navbar;
