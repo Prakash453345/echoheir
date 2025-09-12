@@ -304,9 +304,9 @@ const MemoryBrowserPage = () => {
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all text-white"
                 >
-                  <option value="date">Sort by Date</option>
-                  <option value="title">Sort by Title</option>
-                  <option value="emotion">Sort by Emotion</option>
+                  <option value="date" style={{color:'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>Sort by Date</option>
+                  <option value="title" style={{color:'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>Sort by Title</option>
+                  <option value="emotion" style={{color:'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>Sort by Emotion</option>
                 </select>
 
                 <button
