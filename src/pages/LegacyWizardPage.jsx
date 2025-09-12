@@ -422,11 +422,11 @@ const LegacyWizardPage = () => {
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder=" "
+                      placeholder="Full Name"
                       className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 focus:border-violet-400 focus:outline-none transition-all text-white placeholder-white/50"
                     />
                     <label className="absolute left-4 top-3 text-white/50 transition-all duration-300 focus-within:text-xs focus-within:top-2 focus-within:text-violet-400">
-                      Full Name
+                      
                     </label>
                   </div>
 
@@ -437,27 +437,27 @@ const LegacyWizardPage = () => {
                       className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 focus:border-violet-400 focus:outline-none transition-all text-white"
                     >
                       <option value="">Select Relationship</option>
-                      <option value="grandparent">Grandparent</option>
-                      <option value="parent">Parent</option>
-                      <option value="sibling">Sibling</option>
-                      <option value="partner">Partner</option>
-                      <option value="friend">Friend</option>
-                      <option value="mentor">Mentor</option>
-                      <option value="other">Other</option>
+                      <option value="grandparent" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Grandparent</option>
+                      <option value="parent" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Parent</option>
+                      <option value="sibling" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Sibling</option>
+                      <option value="partner" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Partner</option>
+                      <option value="friend" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Friend</option>
+                      <option value="mentor" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Mentor</option>
+                      <option value="other" style={{backgroundColor: 'rgba(255, 119, 198, 0.1)',color:"black"}}>Other</option>
                     </select>
-                    <label className="absolute left-4 top-3 text-white/50 transition-all duration-300">Relationship</label>
+                    <label className="absolute left-4 top-3 text-white/50 transition-all duration-300"></label>
                   </div>
 
                   <div className="relative">
                     <textarea
                       value={formData.bio}
                       onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
-                      placeholder=" "
+                      placeholder="Share a special memory or story about them"
                       rows="4"
                       className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 focus:border-violet-400 focus:outline-none transition-all resize-none text-white placeholder-white/50"
                     ></textarea>
                     <label className="absolute left-4 top-3 text-white/50 transition-all duration-300 focus-within:text-xs focus-within:top-2 focus-within:text-violet-400">
-                      Share a special memory or story about them
+                      
                     </label>
                     <div className="flex justify-between mt-1 text-xs text-white/50">
                       <span>{formData.bio?.length || 0}/1000</span>

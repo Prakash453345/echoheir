@@ -239,7 +239,7 @@ const DashboardPage = () => {
           />
         </div>
 
-        <div className="flex h-screen">
+        <div className="flex h-screen" style={{overflow: 'visible', height:'auto'}}>
           {/* Sidebar Navigation */}
           <aside
             className={`${
