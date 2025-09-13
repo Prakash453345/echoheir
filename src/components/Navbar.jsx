@@ -1,12 +1,22 @@
 // src/components/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
+  const { user, logout } = useAuth();
   const location = useLocation();
   const isAuthPage = location.pathname.includes('/auth');
 
   // Hide navbar on auth pages
   if (isAuthPage) return null;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <nav className="relative z-50 flex items-center justify-between px-6 py-4 backdrop-blur-md bg-black/20 border-b border-white/10" style={{backgroundColor:'#36454f'}}>
@@ -23,19 +33,32 @@ const Navbar = () => {
 
       <div className="hidden md:flex space-x-8">
         <NavLink to="/">Home</NavLink>
-        <NavLink to="/dashboard">Dashboard</NavLink>
-        <NavLink to="/memory-browser">Memories</NavLink>
-        <NavLink to="/chat">Chat</NavLink>
-        <NavLink to="/voice-lab">Voice Lab</NavLink>
+        {user && (
+          <>
+            <NavLink to="/dashboard">Dashboard</NavLink>
+            <NavLink to="/memory-browser">Memories</NavLink>
+            <NavLink to="/chat">Chat</NavLink>
+            <NavLink to="/voice-lab">Voice Lab</NavLink>
+          </>
+        )}
       </div>
 
       <div>
-        <Link
-          to="/auth"
-          className="px-5 py-2 text-white rounded-full bg-gradient-to-r from-violet-500 to-pink-500 hover:shadow-xl hover:shadow-violet-500/25 hover:scale-105 transition-all duration-300 text-sm font-medium"
-        >
-          Sign In
-        </Link>
+        {user ? (
+          <button
+            onClick={handleLogout}
+            className="px-5 py-2 text-white rounded-full bg-gradient-to-r from-red-500 to-pink-500 hover:shadow-xl hover:shadow-red-500/25 hover:scale-105 transition-all duration-300 text-sm font-medium"
+          >
+            Logout
+          </button>
+        ) : (
+          <Link
+            to="/auth"
+            className="px-5 py-2 text-white rounded-full bg-gradient-to-r from-violet-500 to-pink-500 hover:shadow-xl hover:shadow-violet-500/25 hover:scale-105 transition-all duration-300 text-sm font-medium"
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </nav>
   );
@@ -53,4 +76,4 @@ const NavLink = ({ to, children }) => {
   );
 };
 
-export default Navbar;
+export default Navbar;
