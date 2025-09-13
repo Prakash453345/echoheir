@@ -312,11 +312,11 @@ const SettingsPage = () => {
                         type="text"
                         value={profileData.name}
                         onChange={(e) => handleProfileChange('name', e.target.value)}
-                        placeholder=" "
+                        placeholder="Full Name"
                         className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all text-white placeholder-white/50"
                       />
                       <label className="absolute left-4 top-3 text-white/50 transition-all duration-300 focus-within:text-xs focus-within:top-2 focus-within:text-violet-400">
-                        Full Name
+                        
                       </label>
                     </div>
 
@@ -325,11 +325,11 @@ const SettingsPage = () => {
                         type="email"
                         value={profileData.email}
                         onChange={(e) => handleProfileChange('email', e.target.value)}
-                        placeholder=" "
+                        placeholder="Email Address"
                         className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all text-white placeholder-white/50"
                       />
                       <label className="absolute left-4 top-3 text-white/50 transition-all duration-300 focus-within:text-xs focus-within:top-2 focus-within:text-violet-400">
-                        Email Address
+                        
                       </label>
                     </div>
                   </div>
@@ -338,12 +338,12 @@ const SettingsPage = () => {
                     <textarea
                       value={profileData.bio}
                       onChange={(e) => handleProfileChange('bio', e.target.value)}
-                      placeholder=" "
+                      placeholder="Bio (Tell us about yourself)"
                       rows="4"
                       className="w-full px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all resize-none text-white placeholder-white/50"
                     ></textarea>
                     <label className="absolute left-4 top-3 text-white/50 transition-all duration-300 focus-within:text-xs focus-within:top-2 focus-within:text-violet-400">
-                      Bio (Tell us about yourself)
+                      
                     </label>
                     <div className="flex justify-between mt-1 text-xs text-white/50">
                       <span>{profileData.bio?.length || 0}/500</span>
@@ -424,7 +424,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               privacySettings.dataSharing ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}} 
                           ></span>
                         </button>
                       </div>
@@ -445,7 +445,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               privacySettings.publicProfile ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -466,7 +466,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               privacySettings.familyAccess ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -487,7 +487,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               privacySettings.downloadPermissions ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -508,7 +508,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               privacySettings.aiTrainingOptIn ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -692,7 +692,7 @@ const SettingsPage = () => {
                         <span
                           className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                             appearance.reduceMotion ? 'translate-x-6' : 'translate-x-1'
-                          }`}
+                          }`}style={{right:'30px',bottom:'5px'}}
                         ></span>
                       </button>
                     </div>
@@ -775,7 +775,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               notifications.emailNotifications ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -796,7 +796,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               notifications.pushNotifications ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -817,7 +817,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               notifications.memoryReminders ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -838,7 +838,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               notifications.anniversaryAlerts ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -865,7 +865,7 @@ const SettingsPage = () => {
                           <span
                             className={`absolute w-4 h-4 rounded-full bg-white transition-transform ${
                               notifications.soundEnabled ? 'translate-x-6' : 'translate-x-1'
-                            }`}
+                            }`}style={{right:'30px',bottom:'5px'}}
                           ></span>
                         </button>
                       </div>
@@ -916,17 +916,17 @@ const SettingsPage = () => {
                         <h4 className="font-medium text-white mb-2">Quiet Hours</h4>
                         <div className="flex items-center space-x-4">
                           <select className="px-3 py-2 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all text-white">
-                            <option>10:00 PM</option>
-                            <option>11:00 PM</option>
-                            <option selected>12:00 AM</option>
-                            <option>1:00 AM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>10:00 PM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>11:00 PM</option>
+                            <option selected style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>12:00 AM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>1:00 AM</option>
                           </select>
                           <span className="text-white/50">to</span>
                           <select className="px-3 py-2 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 focus:border-violet-400 focus:outline-none transition-all text-white">
-                            <option>6:00 AM</option>
-                            <option>7:00 AM</option>
-                            <option selected>8:00 AM</option>
-                            <option>9:00 AM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>6:00 AM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>7:00 AM</option>
+                            <option selected style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>8:00 AM</option>
+                            <option style={{ color: 'black',backgroundColor:"rgba(255, 255, 255, 0.1)"}}>9:00 AM</option>
                           </select>
                         </div>
                       </div>
