@@ -78,7 +78,7 @@ const AuthPage = () => {
   useEffect(() => {
     const fragments = [
       {
-        img: "",
+        img: "https://i.ibb.co/DTXPtB5/Gemini-Generated-Image-3rk7nb3rk7nb3rk7.png",
         text: "Her laugh still echoes in the kitchen...",
         top: "10%",
         left: "10%",
