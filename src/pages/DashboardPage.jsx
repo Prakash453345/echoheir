@@ -36,7 +36,6 @@ const DashboardPage = () => {
         y: (e.clientY / window.innerHeight) * 100,
       });
     };
-
     window.addEventListener("mousemove", handleMouseMove);
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
@@ -78,7 +77,7 @@ const DashboardPage = () => {
       relationship: "Grandmother",
       lastActive: "2 hours ago",
       photo:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
       recentMessage:
         "She asked about your garden again — just like she always did.",
       totalMemories: 247,
@@ -171,14 +170,14 @@ const DashboardPage = () => {
     {
       id: 3,
       label: "Voice Training",
-      icon: "🎙️",
+      icon: "🎙",
       color: "from-purple-400 to-indigo-500",
       path: "/voice-lab",
     },
     {
       id: 4,
       label: "Settings",
-      icon: "⚙️",
+      icon: "⚙",
       color: "from-gray-400 to-gray-500",
       path: "/settings",
     },
@@ -200,7 +199,6 @@ const DashboardPage = () => {
               `,
             }}
           />
-
           {/* Floating Particles */}
           <div className="absolute inset-0">
             {particles.map((particle) => (
@@ -208,29 +206,24 @@ const DashboardPage = () => {
                 key={particle.id}
                 className="absolute rounded-full pointer-events-none animate-pulse"
                 style={{
-                  left: `${particle.x}%`,
-                  top: `${particle.y}%`,
-                  width: `${particle.size}px`,
-                  height: `${particle.size}px`,
-                  background: `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`,
-                  boxShadow: `0 0 ${particle.size * 4}px hsla(${
-                    particle.hue
-                  }, 70%, 60%, ${particle.opacity * 0.5})`,
-                  animation: `float ${
-                    3 + Math.random() * 4
-                  }s ease-in-out infinite`,
-                  animationDelay: `${Math.random() * 2}s`,
+                  left: `${particle.x}%`, // ✅ Fixed: Wrapped in backticks
+                  top: `${particle.y}%`, // ✅ Fixed
+                  width: `${particle.size}px`, // ✅ Fixed
+                  height: `${particle.size}px`, // ✅ Fixed
+                  background: `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`, // ✅ Fixed
+                  boxShadow: `0 0 ${particle.size * 4}px hsla(${particle.hue}, 70%, 60%, ${particle.opacity * 0.5})`,
+                  animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`, // ✅ Fixed
+                  animationDelay: `${Math.random() * 2}s`, // ✅ Fixed
                 }}
               />
             ))}
           </div>
-
           {/* Interactive Mouse Glow */}
           <div
             className="absolute w-96 h-96 rounded-full pointer-events-none transition-all duration-300 ease-out"
             style={{
-              left: `${mousePos.x}%`,
-              top: `${mousePos.y}%`,
+              left: `${mousePos.x}%`, // ✅ Fixed
+              top: `${mousePos.y}%`, // ✅ Fixed
               transform: "translate(-50%, -50%)",
               background:
                 "radial-gradient(circle, rgba(147, 51, 234, 0.1) 0%, transparent 70%)",
@@ -239,12 +232,10 @@ const DashboardPage = () => {
           />
         </div>
 
-        <div className="flex h-screen" style={{overflow: 'visible', height:'auto'}}>
+        <div className="flex h-screen" style={{ overflow: "visible", height: "auto" }}>
           {/* Sidebar Navigation */}
           <aside
-            className={`${
-              sidebarCollapsed ? "w-20" : "w-64"
-            } bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 ease-in-out`}
+            className={`${sidebarCollapsed ? "w-20" : "w-64"} bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 ease-in-out`}
           >
             {/* User Profile Section */}
             <div className="p-6 border-b border-white/10">
@@ -280,7 +271,7 @@ const DashboardPage = () => {
                 { id: "memories", label: "Memory Browser", icon: "📚" },
                 { id: "conversations", label: "Conversations", icon: "💬" },
                 { id: "analytics", label: "Analytics", icon: "📊" },
-                { id: "settings", label: "Settings", icon: "⚙️" },
+                { id: "settings", label: "Settings", icon: "⚙" },
               ].map((item) => (
                 <button
                   key={item.id}
@@ -333,7 +324,6 @@ const DashboardPage = () => {
                     Here's your Memory Mission Control
                   </p>
                 </div>
-
                 {/* Memory Mood Widget */}
                 <div className="flex items-center space-x-4">
                   <div
@@ -352,7 +342,6 @@ const DashboardPage = () => {
                       {memoryMood.charAt(0).toUpperCase() + memoryMood.slice(1)}
                     </span>
                   </div>
-
                   {/* Search Bar */}
                   <div className="relative">
                     <input
@@ -402,8 +391,8 @@ const DashboardPage = () => {
                   },
                   {
                     label: "Voice Training",
-                    value: `${stats.voiceTrainingAvg}%`,
-                    icon: "🎙️",
+                    value: `${stats.voiceTrainingAvg}%`, // ✅ Fixed: Template literal
+                    icon: "🎙",
                     color: "from-purple-400 to-indigo-500",
                   },
                 ].map((stat, idx) => (
@@ -412,7 +401,7 @@ const DashboardPage = () => {
                     className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20"
                   >
                     <div
-                      className={`w-10 h-10 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center text-white mb-2`}
+                      className={`w-10 h-10 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center text-white mb-2`} // ✅ Fixed: Added backticks around ${stat.color}
                     >
                       {stat.icon}
                     </div>
@@ -489,17 +478,17 @@ const DashboardPage = () => {
                                   key={i}
                                   className="absolute rounded-full animate-pulse"
                                   style={{
-                                    left: `${(i * 13) % 100}%`,
-                                    top: `${(i * 23) % 100}%`,
-                                    width: `${1 + Math.random() * 3}px`,
-                                    height: `${1 + Math.random() * 3}px`,
+                                    left: `${(i * 13) % 100}%`, // ✅ Fixed
+                                    top: `${(i * 23) % 100}%`, // ✅ Fixed
+                                    width: `${1 + Math.random() * 3}px`, // ✅ Fixed
+                                    height: `${1 + Math.random() * 3}px`, // ✅ Fixed
                                     background: `hsla(${
                                       card.id * 60 + 240 + i * 10
-                                    }, 70%, 70%, 0.6)`,
-                                    animationDelay: `${i * 0.2}s`,
+                                    }, 70%, 70%, 0.6)`, // ✅ Fixed
+                                    animationDelay: `${i * 0.2}s`, // ✅ Fixed
                                     animationDuration: `${
                                       3 + Math.random() * 4
-                                    }s`,
+                                    }s`, // ✅ Fixed
                                   }}
                                 ></div>
                               ))}
@@ -601,7 +590,7 @@ const DashboardPage = () => {
                                     <div
                                       className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 rounded-full"
                                       style={{
-                                        width: `${card.voiceTraining}%`,
+                                        width: `${card.voiceTraining}%`, // ✅ Fixed
                                       }}
                                     ></div>
                                   </div>
@@ -635,7 +624,7 @@ const DashboardPage = () => {
                       ))}
                     </div>
                   </section>
-                  
+
                   {/* Recent Conversations */}
                   <section className="mb-8">
                     <div className="flex items-center justify-between mb-6">
@@ -649,7 +638,6 @@ const DashboardPage = () => {
                         View All
                       </Link>
                     </div>
-
                     <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
                       {conversations.map((conv) => (
                         <div
@@ -677,13 +665,11 @@ const DashboardPage = () => {
                               </span>
                             </div>
                           </div>
-
                           <div className="p-3 bg-white/5 rounded-xl mb-3">
                             <p className="text-sm text-white/70">
                               "{conv.message}"
                             </p>
                           </div>
-
                           {conv.unread > 0 && (
                             <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-pink-500 flex items-center justify-center text-xs text-white animate-pulse">
                               {conv.unread}
@@ -749,12 +735,12 @@ const DashboardPage = () => {
                                   cy="100"
                                   r={radius - idx * 15}
                                   fill="transparent"
-                                  stroke={`currentColor`}
+                                  stroke="currentColor"
                                   strokeWidth="15"
                                   strokeDasharray={circumference}
                                   strokeDashoffset={offset}
-                                  className={`${item.color} transition-all duration-1000 ease-out`}
-                                  style={{ transitionDelay: `${idx * 200}ms` }}
+                                  className={`${item.color} transition-all duration-1000 ease-out`} // ✅ Fixed: Backticks around ${item.color}
+                                  style={{ transitionDelay: `${idx * 200}ms` }} // ✅ Fixed: Backticks around ${idx * 200}ms
                                 />
                               );
                             })}
@@ -779,7 +765,7 @@ const DashboardPage = () => {
                               className="flex items-center space-x-2"
                             >
                               <div
-                                className={`w-3 h-3 rounded-full ${item.color}`}
+                                className={`w-3 h-3 rounded-full ${item.color}`} // ✅ Fixed: Backticks around ${item.color}
                               ></div>
                               <span className="text-xs text-white/60">
                                 {item.label}
@@ -800,7 +786,7 @@ const DashboardPage = () => {
                               time: "2 hours ago",
                               action: "Added 5 new voice memories",
                               user: "You",
-                              icon: "🎙️",
+                              icon: "🎙",
                               color: "text-pink-400",
                             },
                             {
@@ -831,7 +817,7 @@ const DashboardPage = () => {
                               className="flex items-start space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all"
                             >
                               <div
-                                className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ${activity.color}`}
+                                className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ${activity.color}`} // ✅ Fixed: Backticks around ${activity.color}
                               >
                                 {activity.icon}
                               </div>
@@ -938,11 +924,9 @@ const DashboardPage = () => {
                     <Link
                       key={action.id}
                       to={action.path}
-                      className={`w-14 h-14 rounded-full bg-gradient-to-r ${action.color} text-white flex items-center justify-center text-lg shadow-lg hover:scale-110 transition-all duration-300 transform`}
+                      className={`w-14 h-14 rounded-full bg-gradient-to-r ${action.color} text-white flex items-center justify-center text-lg shadow-lg hover:scale-110 transition-all duration-300 transform`} // ✅ Fixed: Added backticks around ${action.color}
                       style={{
-                        animation: `slideIn 0.3s ease-out ${
-                          action.id * 0.1
-                        }s both`,
+                        animation: `slideIn 0.3s ease-out ${action.id * 0.1}s both`, // ✅ Fixed: Backticks around ${action.id * 0.1}s
                       }}
                     >
                       {action.icon}

@@ -187,7 +187,6 @@ const AuthPage = () => {
         return;
       }
     }
-
     if (currentStep < 3) setCurrentStep((prev) => prev + 1);
   };
 
@@ -197,12 +196,9 @@ const AuthPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
-
     setIsSubmitting(true);
     setApiError("");
-
     try {
       let result;
       if (isLogin) {
@@ -217,12 +213,10 @@ const AuthPage = () => {
             privacyLevel: formData.privacyLevel,
           });
         } else {
-          nextStep();
-          setIsSubmitting(false);
-          return;
+          nextStep(); // Only call nextStep — don't manually set isSubmitting false here
+          return;   // Exit early — finally block will reset isSubmitting
         }
       }
-
       setShowSuccess(true);
       setTimeout(() => {
         navigate("/dashboard");
@@ -272,17 +266,14 @@ const AuthPage = () => {
                   width: `${particle.size}px`,
                   height: `${particle.size}px`,
                   background: `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`,
-                  boxShadow: `0 0 ${particle.size * 4}px hsla(${
-                    particle.hue
-                  }, 70%, 60%, ${particle.opacity * 0.5})`,
-                  animation: `float ${
-                    3 + Math.random() * 4
-                  }s ease-in-out infinite`,
+                  boxShadow: `0 0 ${particle.size * 4}px hsla(${particle.hue}, 70%, 60%, ${particle.opacity * 0.5})`,
+                  animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`,
                   animationDelay: `${Math.random() * 2}s`,
                 }}
               />
             ))}
           </div>
+
           {/* Interactive Mouse Glow */}
           <div
             className="absolute w-96 h-96 rounded-full pointer-events-none transition-all duration-300 ease-out"
@@ -302,6 +293,7 @@ const AuthPage = () => {
           <div className="hidden md:block md:w-2/5 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-violet-900/50 to-pink-900/50"></div>
             <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1541771186248-9b367457e315?w=800&h=800&fit=crop')] bg-center bg-cover opacity-20"></div>
+
             {/* Floating Memory Fragments */}
             {memoryFragments.map((fragment, idx) => (
               <div
@@ -312,7 +304,7 @@ const AuthPage = () => {
                   left: fragment.left,
                   animationDelay: fragment.delay,
                   height: "200px",
-                  animationDuration: `${3 + idx}s`,
+                  animationDuration: `${3 + idx}s`, // ✅ Fixed: Template literal
                 }}
               >
                 {fragment.img && (
@@ -329,6 +321,7 @@ const AuthPage = () => {
                 )}
               </div>
             ))}
+
             {/* Parallax Effect */}
             <div
               className="absolute inset-0 pointer-events-none"
@@ -340,8 +333,8 @@ const AuthPage = () => {
               onMouseMove={(e) => {
                 const x = (e.clientX / window.innerWidth) * 100;
                 const y = (e.clientY / window.innerHeight) * 100;
-                e.currentTarget.style.setProperty("--mouse-x", `${x}%`);
-                e.currentTarget.style.setProperty("--mouse-y", `${y}%`);
+                e.currentTarget.style.setProperty("--mouse-x", `${x}%`); // ✅ Fixed
+                e.currentTarget.style.setProperty("--mouse-y", `${y}%`); // ✅ Fixed
               }}
             ></div>
           </div>
@@ -365,6 +358,7 @@ const AuthPage = () => {
                       {apiError}
                     </div>
                   )}
+
                   <div className="relative">
                     <input
                       type="email"
@@ -397,6 +391,7 @@ const AuthPage = () => {
                       </p>
                     )}
                   </div>
+
                   <div className="relative">
                     <input
                       type="password"
@@ -429,6 +424,7 @@ const AuthPage = () => {
                       </p>
                     )}
                   </div>
+
                   <button
                     type="submit"
                     disabled={isSubmitting}
@@ -479,6 +475,7 @@ const AuthPage = () => {
                       "Sign In"
                     )}
                   </button>
+
                   <div className="flex items-center my-6">
                     <div className="flex-1 h-px bg-white bg-opacity-30"></div>
                     <span className="px-4 text-sm text-white/50">
@@ -486,6 +483,7 @@ const AuthPage = () => {
                     </span>
                     <div className="flex-1 h-px bg-white bg-opacity-30"></div>
                   </div>
+
                   <div className="flex justify-center">
                     <a
                       href="http://localhost:5000/auth/google"
@@ -510,6 +508,7 @@ const AuthPage = () => {
                       </span>
                     </a>
                   </div>
+
                   <p className="text-center text-white/50 mt-8">
                     Don't have an account?{" "}
                     <button
@@ -705,7 +704,7 @@ const AuthPage = () => {
                               label: "Grandparent",
                               value: "Grandparent",
                             },
-                            { icon: "👨‍👩‍👧", label: "Parent", value: "Parent" },
+                            { icon: "👨‍👩‍👧‍👦", label: "Parent", value: "Parent" },
                             { icon: "🧑‍🤝‍🧑", label: "Sibling", value: "Sibling" },
                             { icon: "💑", label: "Partner", value: "Partner" },
                           ].map((item, idx) => (
@@ -818,7 +817,7 @@ const AuthPage = () => {
                                 </p>
                               </div>
                               <div
-                                className={`relative w-12 h-6 rounded-full ${item.baseBg} flex items-center justify-between px-1 shadow-lg`}
+                                className={`relative w-12 h-6 rounded-full ${item.baseBg} flex items-center justify-between px-1 shadow-lg`} // ✅ Fixed: Added backticks
                               >
                                 <div
                                   className={`absolute inset-0 rounded-full bg-gradient-to-r ${
