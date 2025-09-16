@@ -9,8 +9,23 @@ const LocalStrategy = require('passport-local').Strategy;
 const cors = require('cors');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
+
+const Legacy = require('./models/Legacy');
+const Conversation = require('./models/Conversation');
+const Activity = require('./models/Activity');
+const dashboardRoutes = require('./routes/dashboard');
+
+const legacyRoutes = require('./routes/legacy');          // 👈 NEW
+const conversationRoutes = require('./routes/conversation'); // 👈 NEW
+
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/legacy', legacyRoutes);           // 👈 NEW
+app.use('/api/conversation', conversationRoutes); // 👈 NEW
 
 // Middleware
 app.use(cors({

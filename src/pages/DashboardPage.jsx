@@ -2,6 +2,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import Layout from "../components/Layout";
+import { useNavigate } from "react-router-dom";
+
+import LegacyWizardPage from "./LegacyWizardPage";
 
 const DashboardPage = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -13,6 +16,83 @@ const DashboardPage = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [particles, setParticles] = useState([]);
   const [activeQuickAction, setActiveQuickAction] = useState(null);
+
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [legacies, setLegacies] = useState([]); // 👈 ADD THIS LINE
+  const [conversations, setConversations] = useState([]); // 👈 ADD THIS LINE
+  const [activities, setActivities] = useState([]);
+
+  const getDisplayNameFromEmail = (email) => {
+    if (!email) return "User";
+    const localPart = email.split("@")[0];
+    const parts = localPart.split(/[._]/);
+    const firstWord = parts[0];
+    return firstWord.charAt(0).toUpperCase() + firstWord.slice(1);
+  };
+
+  // --- DYNAMIC STATS CALCULATED FROM REAL DATA ---
+  // --- REAL-TIME ANALYTICS CALCULATIONS ---
+  const stats = {
+    totalMemories: legacies.reduce((sum, l) => sum + (l.totalMemories || 0), 0),
+    activeLegacies: legacies.filter((l) => l.status === "active").length,
+    voiceTrainingAvg:
+      legacies.length > 0
+        ? Math.round(
+            legacies.reduce((sum, l) => sum + (l.voiceTraining || 0), 0) /
+              legacies.length
+          )
+        : 0,
+
+    // 👇 NEW: Memory Distribution by Type
+    memoryDistribution: () => {
+      const totalPhotos = legacies.reduce(
+        (sum, l) => sum + (l.photoCount || 0),
+        0
+      );
+      const totalAudio = legacies.reduce(
+        (sum, l) => sum + (l.audioCount || 0),
+        0
+      );
+      const totalText = legacies.reduce(
+        (sum, l) => sum + (l.textCount || 0),
+        0
+      );
+      const total = totalPhotos + totalAudio + totalText;
+
+      if (total === 0)
+        return [
+          { percent: 0, color: "stroke-gray-400", label: "Photos" },
+          { percent: 0, color: "stroke-gray-400", label: "Voice" },
+          { percent: 0, color: "stroke-gray-400", label: "Text" },
+        ];
+
+      return [
+        {
+          percent: Math.round((totalPhotos / total) * 100),
+          color: "stroke-blue-400",
+          label: "Photos",
+        },
+        {
+          percent: Math.round((totalAudio / total) * 100),
+          color: "stroke-pink-400",
+          label: "Voice",
+        },
+        {
+          percent: Math.round((totalText / total) * 100),
+          color: "stroke-purple-400",
+          label: "Text",
+        },
+      ];
+    },
+  };
+
+  const navigate = useNavigate();
+
+  const createLegacy = () => {
+    navigate("/wizard"); // 👈 Navigate programmatically
+  };
 
   // Generate floating particles
   useEffect(() => {
@@ -68,88 +148,6 @@ const DashboardPage = () => {
     const randomMood = moods[Math.floor(Math.random() * moods.length)];
     setMemoryMood(randomMood);
   }, []);
-
-  // Legacy data
-  const legacyCards = [
-    {
-      id: 1,
-      name: "Grandma Eleanor",
-      relationship: "Grandmother",
-      lastActive: "2 hours ago",
-      photo:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&crop=face",
-      recentMessage:
-        "She asked about your garden again — just like she always did.",
-      totalMemories: 247,
-      voiceTraining: 92,
-      gradient: "from-pink-400 to-rose-500",
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Uncle Marcus",
-      relationship: "Uncle",
-      lastActive: "Yesterday",
-      photo:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face",
-      recentMessage:
-        "Told that fishing story again — the one with the giant catch!",
-      totalMemories: 183,
-      voiceTraining: 78,
-      gradient: "from-blue-400 to-cyan-500",
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Create New Legacy",
-      isCreateCard: true,
-      gradient: "from-purple-400 to-indigo-500",
-    },
-  ];
-
-  // Recent conversations
-  const conversations = [
-    {
-      id: 1,
-      name: "Grandma Eleanor",
-      message: "How's the garden coming along?",
-      time: "2h",
-      unread: 1,
-      emotionalTone: "joyful",
-    },
-    {
-      id: 2,
-      name: "Uncle Marcus",
-      message: "Remember that time we got lost fishing?",
-      time: "5h",
-      unread: 0,
-      emotionalTone: "nostalgic",
-    },
-    {
-      id: 3,
-      name: "Grandma Eleanor",
-      message: "I'm so proud of you, sweetheart.",
-      time: "1d",
-      unread: 2,
-      emotionalTone: "loving",
-    },
-    {
-      id: 4,
-      name: "Uncle Marcus",
-      message: "Life's too short not to laugh often.",
-      time: "2d",
-      unread: 0,
-      emotionalTone: "wise",
-    },
-  ];
-
-  // Analytics data
-  const stats = {
-    totalMemories: 430,
-    activeLegacies: 2,
-    conversationStreak: 7,
-    voiceTrainingAvg: 85,
-  };
 
   // Quick actions
   const quickActions = [
@@ -211,8 +209,12 @@ const DashboardPage = () => {
                   width: `${particle.size}px`, // ✅ Fixed
                   height: `${particle.size}px`, // ✅ Fixed
                   background: `hsla(${particle.hue}, 70%, 60%, ${particle.opacity})`, // ✅ Fixed
-                  boxShadow: `0 0 ${particle.size * 4}px hsla(${particle.hue}, 70%, 60%, ${particle.opacity * 0.5})`,
-                  animation: `float ${3 + Math.random() * 4}s ease-in-out infinite`, // ✅ Fixed
+                  boxShadow: `0 0 ${particle.size * 4}px hsla(${
+                    particle.hue
+                  }, 70%, 60%, ${particle.opacity * 0.5})`,
+                  animation: `float ${
+                    3 + Math.random() * 4
+                  }s ease-in-out infinite`, // ✅ Fixed
                   animationDelay: `${Math.random() * 2}s`, // ✅ Fixed
                 }}
               />
@@ -232,22 +234,34 @@ const DashboardPage = () => {
           />
         </div>
 
-        <div className="flex h-screen" style={{ overflow: "visible", height: "auto" }}>
+        <div
+          className="flex h-screen"
+          style={{ overflow: "visible", height: "auto" }}
+        >
           {/* Sidebar Navigation */}
           <aside
-            className={`${sidebarCollapsed ? "w-20" : "w-64"} bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 ease-in-out`}
+            className={`${
+              sidebarCollapsed ? "w-20" : "w-64"
+            } bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 ease-in-out`}
           >
             {/* User Profile Section */}
             <div className="p-6 border-b border-white/10">
               <div className="flex items-center space-x-3">
                 <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
+                  src={
+                    user?.avatar ||
+                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
+                  }
                   alt="User"
                   className="w-12 h-12 rounded-full border-2 border-white/30"
                 />
                 {!sidebarCollapsed && (
                   <div>
-                    <p className="font-medium text-white">Alex Morgan</p>
+                    <p className="font-medium text-white">
+                      {user
+                        ? getDisplayNameFromEmail(user.email)
+                        : "Prakash"}
+                    </p>
                     <p className="text-xs text-white/60">Online</p>
                   </div>
                 )}
@@ -318,7 +332,7 @@ const DashboardPage = () => {
                       : currentTime.getHours() < 18
                       ? "Afternoon"
                       : "Evening"}
-                    , Alex
+                    , Prakash
                   </h1>
                   <p className="text-white/70">
                     Here's your Memory Mission Control
@@ -424,204 +438,206 @@ const DashboardPage = () => {
                       Your Legacies
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {legacyCards.map((card) => (
-                        <div
-                          key={card.id}
-                          className={`relative rounded-2xl p-6 transition-all duration-500 cursor-pointer overflow-hidden ${
-                            card.isCreateCard
-                              ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:scale-105 shadow-2xl shadow-purple-500/20"
-                              : `bg-black/20 backdrop-blur-xl border border-white/20 hover:bg-black/30 ${
-                                  hoveredCard === card.id
-                                    ? "transform translate-y-[-10px] shadow-2xl shadow-violet-500/30"
-                                    : ""
-                                }`
-                          }`}
-                          style={{
-                            background: card.isCreateCard
-                              ? "linear-gradient(135deg, #a855f7, #ec4899)"
-                              : `linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1)), 
-               radial-gradient(circle at 30% 30%, rgba(${card.id * 30}, ${
-                                  100 + card.id * 20
-                                }, ${
-                                  150 + card.id * 10
-                                }, 0.2), transparent 70%),
-               radial-gradient(circle at 70% 70%, rgba(${255 - card.id * 30}, ${
-                                  150 - card.id * 20
-                                }, ${
-                                  100 - card.id * 10
-                                }, 0.15), transparent 70%)`,
-                            borderImage: card.isCreateCard
-                              ? undefined
-                              : `linear-gradient(45deg, hsl(${
-                                  card.id * 60 + 240
-                                }, 70%, 60%), hsl(${
-                                  card.id * 60 + 270
-                                }, 70%, 50%)) 1`,
-                            boxShadow: card.isCreateCard
-                              ? "0 10px 30px rgba(168, 85, 247, 0.3)"
-                              : hoveredCard === card.id
-                              ? "0 20px 40px rgba(147, 51, 234, 0.2)"
-                              : "0 5px 15px rgba(0, 0, 0, 0.1)",
-                          }}
-                          onMouseEnter={() =>
-                            !card.isCreateCard && setHoveredCard(card.id)
-                          }
-                          onMouseLeave={() =>
-                            !card.isCreateCard && setHoveredCard(null)
-                          }
-                        >
-                          {/* Cosmic Background Particles */}
-                          {!card.isCreateCard && (
+                      {/* Render real legacies from API */}
+                      {legacies.length === 0 ? (
+                        <></>
+                      ) : (
+                        /* Render each real legacy as a card */
+                        legacies.map((legacy) => (
+                          <div
+                            key={legacy._id} // ✅ Use legacy._id from DB
+                            className={`relative rounded-2xl p-6 transition-all duration-500 cursor-pointer overflow-hidden bg-black/20 backdrop-blur-xl border border-white/20 hover:bg-black/30 ${
+                              hoveredCard === legacy._id
+                                ? "transform translate-y-[-10px] shadow-2xl shadow-violet-500/30"
+                                : ""
+                            }`}
+                            style={{
+                              background: `linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.1)), 
+               radial-gradient(circle at 30% 30%, rgba(${legacy._id * 30}, ${
+                                100 + legacy._id * 20
+                              }, ${
+                                150 + legacy._id * 10
+                              }, 0.2), transparent 70%),
+               radial-gradient(circle at 70% 70%, rgba(${
+                 255 - legacy._id * 30
+               }, ${150 - legacy._id * 20}, ${
+                                100 - legacy._id * 10
+                              }, 0.15), transparent 70%)`,
+                              borderImage: `linear-gradient(45deg, hsl(${
+                                legacy._id * 60 + 240
+                              }, 70%, 60%), hsl(${
+                                legacy._id * 60 + 270
+                              }, 70%, 50%)) 1`,
+                              boxShadow:
+                                hoveredCard === legacy._id
+                                  ? "0 20px 40px rgba(147, 51, 234, 0.2)"
+                                  : "0 5px 15px rgba(0, 0, 0, 0.1)",
+                            }}
+                            onMouseEnter={() => setHoveredCard(legacy._id)}
+                            onMouseLeave={() => setHoveredCard(null)}
+                          >
+                            {/* Cosmic Background Particles (UNCHANGED) */}
                             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                               {[...Array(15)].map((_, i) => (
                                 <div
                                   key={i}
                                   className="absolute rounded-full animate-pulse"
                                   style={{
-                                    left: `${(i * 13) % 100}%`, // ✅ Fixed
-                                    top: `${(i * 23) % 100}%`, // ✅ Fixed
-                                    width: `${1 + Math.random() * 3}px`, // ✅ Fixed
-                                    height: `${1 + Math.random() * 3}px`, // ✅ Fixed
+                                    left: `${(i * 13) % 100}%`,
+                                    top: `${(i * 23) % 100}%`,
+                                    width: `${1 + Math.random() * 3}px`,
+                                    height: `${1 + Math.random() * 3}px`,
                                     background: `hsla(${
-                                      card.id * 60 + 240 + i * 10
-                                    }, 70%, 70%, 0.6)`, // ✅ Fixed
-                                    animationDelay: `${i * 0.2}s`, // ✅ Fixed
+                                      legacy._id * 60 + 240 + i * 10
+                                    }, 70%, 70%, 0.6)`,
+                                    animationDelay: `${i * 0.2}s`,
                                     animationDuration: `${
                                       3 + Math.random() * 4
-                                    }s`, // ✅ Fixed
+                                    }s`,
                                   }}
                                 ></div>
                               ))}
                             </div>
-                          )}
 
-                          {/* Glowing Edge */}
-                          <div
-                            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                            style={{
-                              background: `radial-gradient(circle, transparent 70%, hsla(${
-                                card.id * 60 + 240
-                              }, 70%, 60%, 0.3) 100%)`,
-                            }}
-                          ></div>
+                            {/* Glowing Edge (UNCHANGED) */}
+                            <div
+                              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                              style={{
+                                background: `radial-gradient(circle, transparent 70%, hsla(${
+                                  legacy._id * 60 + 240
+                                }, 70%, 60%, 0.3) 100%)`,
+                              }}
+                            ></div>
 
-                          {card.isCreateCard ? (
-                            <>
-                              <div className="relative z-10">
-                                <div className="text-4xl mb-4 animate-pulse">
-                                  ✨
+                            <div className="flex items-start justify-between mb-4 relative z-10">
+                              <div className="flex items-center space-x-3">
+                                <div className="relative">
+                                  <img
+                                    src={
+                                      legacy.photo ||
+                                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
+                                    }
+                                    alt={legacy.name}
+                                    className="w-12 h-12 rounded-full border-2 border-white/30 shadow-lg"
+                                  />
+                                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-400 to-pink-400 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-sm"></div>
                                 </div>
-                                <h3 className="text-xl font-semibold mb-2">
-                                  Create New Legacy
-                                </h3>
-                                <p className="text-sm opacity-90">
-                                  Start preserving someone special
-                                </p>
-                                <div className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-sm border border-white/30 hover:bg-white/50 transition-all">
-                                  <span className="animate-bounce">➕</span>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <div className="flex items-start justify-between mb-4 relative z-10">
-                                <div className="flex items-center space-x-3">
-                                  <div className="relative">
-                                    <img
-                                      src={card.photo}
-                                      alt={card.name}
-                                      className="w-12 h-12 rounded-full border-2 border-white/30 shadow-lg"
-                                    />
-                                    {/* Photo Glow */}
-                                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-violet-400 to-pink-400 opacity-0 group-hover:opacity-30 transition-opacity duration-500 blur-sm"></div>
-                                  </div>
-                                  <div>
-                                    <h3 className="font-semibold text-white">
-                                      {card.name}
-                                    </h3>
-                                    <p className="text-sm text-white/60">
-                                      {card.relationship}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div
-                                  className={`w-3 h-3 rounded-full animate-pulse ${
-                                    card.status === "active"
-                                      ? "bg-emerald-400"
-                                      : "bg-gray-400"
-                                  }`}
-                                ></div>
-                              </div>
-
-                              <div className="mb-4 p-3 bg-white/5 rounded-xl relative z-10 backdrop-blur-sm border border-white/10">
-                                <p className="text-sm text-white/70">
-                                  "{card.recentMessage}"
-                                </p>
-                                <p className="text-xs text-white/50 mt-2">
-                                  Last active: {card.lastActive}
-                                </p>
-                              </div>
-
-                              <div className="space-y-3 relative z-10">
                                 <div>
-                                  <div className="flex justify-between text-xs text-white/60 mb-1">
-                                    <span>Memories</span>
-                                    <span>{card.totalMemories}</span>
-                                  </div>
-                                  <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-                                    <div
-                                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-1000 rounded-full"
-                                      style={{
-                                        width: `${Math.min(
-                                          100,
-                                          (card.totalMemories / 500) * 100
-                                        )}%`,
-                                      }}
-                                    ></div>
-                                  </div>
-                                </div>
-
-                                <div>
-                                  <div className="flex justify-between text-xs text-white/60 mb-1">
-                                    <span>Voice Training</span>
-                                    <span>{card.voiceTraining}%</span>
-                                  </div>
-                                  <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-                                    <div
-                                      className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 rounded-full"
-                                      style={{
-                                        width: `${card.voiceTraining}%`, // ✅ Fixed
-                                      }}
-                                    ></div>
-                                  </div>
+                                  <h3 className="font-semibold text-white">
+                                    {legacy.name}
+                                  </h3>
+                                  <p className="text-sm text-white/60">
+                                    {legacy.relationship || "Other"}
+                                  </p>
                                 </div>
                               </div>
-
-                              {/* Quick Action Buttons (appear on hover) */}
-                              {hoveredCard === card.id && (
-                                <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                  <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
-                                    <span className="text-xs">💬</span>
-                                  </button>
-                                  <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
-                                    <span className="text-xs">📝</span>
-                                  </button>
-                                  <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
-                                    <span className="text-xs">⋮</span>
-                                  </button>
-                                </div>
-                              )}
-
-                              {/* Floating Memory Orbs */}
-                              <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-gradient-to-r from-violet-400 to-pink-400 opacity-60 animate-ping"></div>
                               <div
-                                className="absolute -bottom-2 -left-2 w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 opacity-40 animate-pulse"
-                                style={{ animationDelay: "1s" }}
+                                className={`w-3 h-3 rounded-full animate-pulse ${
+                                  legacy.status === "active"
+                                    ? "bg-emerald-400"
+                                    : "bg-gray-400"
+                                }`}
                               ></div>
-                            </>
-                          )}
+                            </div>
+
+                            <div className="mb-4 p-3 bg-white/5 rounded-xl relative z-10 backdrop-blur-sm border border-white/10">
+                              <p className="text-sm text-white/70">
+                                "
+                                {legacy.recentMessage ||
+                                  "No recent message yet."}
+                                "
+                              </p>
+                              <p className="text-xs text-white/50 mt-2">
+                                Last active: {legacy.lastActive || "Just now"}
+                              </p>
+                            </div>
+
+                            <div className="space-y-3 relative z-10">
+                              <div>
+                                <div className="flex justify-between text-xs text-white/60 mb-1">
+                                  <span>Memories</span>
+                                  <span>{legacy.totalMemories || 0}</span>
+                                </div>
+                                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-1000 rounded-full"
+                                    style={{
+                                      width: `${Math.min(
+                                        100,
+                                        ((legacy.totalMemories || 0) / 500) *
+                                          100
+                                      )}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex justify-between text-xs text-white/60 mb-1">
+                                  <span>Voice Training</span>
+                                  <span>{legacy.voiceTraining || 0}%</span>
+                                </div>
+                                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-1000 rounded-full"
+                                    style={{
+                                      width: `${legacy.voiceTraining || 0}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Quick Action Buttons (appear on hover) */}
+                            {hoveredCard === legacy._id && (
+                              <div className="absolute top-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
+                                  <span className="text-xs">💬</span>
+                                </button>
+                                <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
+                                  <span className="text-xs">📝</span>
+                                </button>
+                                <button className="w-8 h-8 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center hover:bg-white/50 transition-all text-white/80 border border-white/20 hover:scale-110 hover:shadow-lg hover:shadow-violet-500/20">
+                                  <span className="text-xs">⋮</span>
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Floating Memory Orbs (UNCHANGED) */}
+                            <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-gradient-to-r from-violet-400 to-pink-400 opacity-60 animate-ping"></div>
+                            <div
+                              className="absolute -bottom-2 -left-2 w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 opacity-40 animate-pulse"
+                              style={{ animationDelay: "1s" }}
+                            ></div>
+                          </div>
+                        ))
+                      )}
+
+                      {/* ALWAYS SHOW "Create New Legacy" Card — BELOW ALL LEGACIES */}
+                      <div
+                        key="create-new"
+                        className="relative rounded-2xl p-6 transition-all duration-500 cursor-pointer overflow-hidden bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:scale-105 shadow-2xl shadow-purple-500/20"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, #a855f7, #8b5cf6)",
+                        }}
+                      >
+                        <div className="relative z-10">
+                          <div className="text-4xl mb-4 animate-pulse">✨</div>
+                          <button
+                            onClick={createLegacy}
+                            style={{ cursor: "pointer" }}
+                            className="text-xl font-semibold mb-2"
+                          >
+                            Create New Legacy
+                          </button>
+                          <p className="text-sm opacity-90">
+                            Start preserving someone special
+                          </p>
+                          <div className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white/30 flex items-center justify-center backdrop-blur-sm border border-white/30 hover:bg-white/50 transition-all">
+                            <span className="animate-bounce">➕</span>
+                          </div>
                         </div>
-                      ))}
+                      </div>
                     </div>
                   </section>
 
@@ -638,55 +654,69 @@ const DashboardPage = () => {
                         View All
                       </Link>
                     </div>
-                    <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
-                      {conversations.map((conv) => (
-                        <div
-                          key={conv.id}
-                          className="flex-shrink-0 w-80 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all cursor-pointer group"
-                        >
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-semibold text-white">
-                              {conv.name}
-                            </h3>
-                            <div className="flex items-center space-x-2">
-                              <div
-                                className={`w-2 h-2 rounded-full ${
-                                  conv.emotionalTone === "joyful"
-                                    ? "bg-amber-400"
-                                    : conv.emotionalTone === "nostalgic"
-                                    ? "bg-purple-400"
-                                    : conv.emotionalTone === "loving"
-                                    ? "bg-pink-400"
-                                    : "bg-blue-400"
-                                }`}
-                              ></div>
-                              <span className="text-xs text-white/50">
-                                {conv.time}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="p-3 bg-white/5 rounded-xl mb-3">
-                            <p className="text-sm text-white/70">
-                              "{conv.message}"
-                            </p>
-                          </div>
-                          {conv.unread > 0 && (
-                            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-pink-500 flex items-center justify-center text-xs text-white animate-pulse">
-                              {conv.unread}
-                            </div>
-                          )}
 
-                          {/* Quick Reply (appears on hover) */}
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">
-                            <input
-                              type="text"
-                              placeholder="Quick reply..."
-                              className="w-full px-3 py-2 text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-violet-400 text-white placeholder-white/50"
-                            />
+                    {conversations.length === 0 ? (
+                      <div className="text-center py-12 bg-white/5 rounded-2xl">
+                        <p className="text-xl text-white/70">
+                          You haven't had any conversations yet.
+                        </p>
+                        <p className="text-white/50 mt-2">
+                          Start chatting with your digital legacy.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+                        {conversations.map((conv) => (
+                          <div
+                            key={conv._id}
+                            className="flex-shrink-0 w-80 p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all cursor-pointer group"
+                          >
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="font-semibold text-white">
+                                {conv.legacyName || "Unknown"}{" "}
+                                {/* ✅ Use legacyName from API */}
+                              </h3>
+                              <div className="flex items-center space-x-2">
+                                <div
+                                  className={`w-2 h-2 rounded-full ${
+                                    conv.emotionalTone === "joyful"
+                                      ? "bg-amber-400"
+                                      : conv.emotionalTone === "nostalgic"
+                                      ? "bg-purple-400"
+                                      : conv.emotionalTone === "loving"
+                                      ? "bg-pink-400"
+                                      : "bg-blue-400"
+                                  }`}
+                                ></div>
+                                <span className="text-xs text-white/50">
+                                  {conv.time || "Just now"}{" "}
+                                  {/* ✅ Fallback if time is missing */}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="p-3 bg-white/5 rounded-xl mb-3">
+                              <p className="text-sm text-white/70">
+                                "{conv.message || "No message yet."}"{" "}
+                                {/* ✅ Fallback if message is empty */}
+                              </p>
+                            </div>
+                            {conv.unread > 0 && (
+                              <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-gradient-to-r from-violet-400 to-pink-500 flex items-center justify-center text-xs text-white animate-pulse">
+                                {conv.unread}
+                              </div>
+                            )}
+                            {/* Quick Reply (appears on hover) — UNCHANGED */}
+                            <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 mt-2">
+                              <input
+                                type="text"
+                                placeholder="Quick reply..."
+                                className="w-full px-3 py-2 text-sm rounded-xl bg-white/10 border border-white/20 focus:outline-none focus:border-violet-400 text-white placeholder-white/50"
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
                   </section>
 
                   {/* Analytics Dashboard */}
@@ -706,28 +736,13 @@ const DashboardPage = () => {
                             height="200"
                             className="transform -rotate-90"
                           >
-                            {[
-                              {
-                                percent: 45,
-                                color: "stroke-pink-400",
-                                label: "Voice",
-                              },
-                              {
-                                percent: 30,
-                                color: "stroke-blue-400",
-                                label: "Photos",
-                              },
-                              {
-                                percent: 25,
-                                color: "stroke-purple-400",
-                                label: "Text",
-                              },
-                            ].map((item, idx) => {
+                            {stats.memoryDistribution().map((item, idx) => {
                               const radius = 80;
                               const circumference = 2 * Math.PI * radius;
                               const offset =
                                 circumference -
                                 (item.percent / 100) * circumference;
+
                               return (
                                 <circle
                                   key={idx}
@@ -739,8 +754,10 @@ const DashboardPage = () => {
                                   strokeWidth="15"
                                   strokeDasharray={circumference}
                                   strokeDashoffset={offset}
-                                  className={`${item.color} transition-all duration-1000 ease-out`} // ✅ Fixed: Backticks around ${item.color}
-                                  style={{ transitionDelay: `${idx * 200}ms` }} // ✅ Fixed: Backticks around ${idx * 200}ms
+                                  className={`${item.color} transition-all duration-1000 ease-out`}
+                                  style={{
+                                    transitionDelay: `${idx * 200}ms`,
+                                  }}
                                 />
                               );
                             })}
@@ -748,24 +765,23 @@ const DashboardPage = () => {
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className="text-center">
                               <div className="text-2xl font-bold text-white">
-                                430
+                                {stats.totalMemories}
                               </div>
                               <div className="text-sm text-white/60">Total</div>
                             </div>
                           </div>
                         </div>
                         <div className="flex justify-center space-x-6 mt-4">
-                          {[
-                            { label: "Voice", color: "bg-pink-400" },
-                            { label: "Photos", color: "bg-blue-400" },
-                            { label: "Text", color: "bg-purple-400" },
-                          ].map((item, idx) => (
+                          {stats.memoryDistribution().map((item, idx) => (
                             <div
                               key={idx}
                               className="flex items-center space-x-2"
                             >
                               <div
-                                className={`w-3 h-3 rounded-full ${item.color}`} // ✅ Fixed: Backticks around ${item.color}
+                                className={`w-3 h-3 rounded-full ${item.color.replace(
+                                  "stroke-",
+                                  "bg-"
+                                )}`}
                               ></div>
                               <span className="text-xs text-white/60">
                                 {item.label}
@@ -781,56 +797,75 @@ const DashboardPage = () => {
                           Recent Activity
                         </h3>
                         <div className="space-y-4">
-                          {[
-                            {
-                              time: "2 hours ago",
-                              action: "Added 5 new voice memories",
-                              user: "You",
-                              icon: "🎙",
-                              color: "text-pink-400",
-                            },
-                            {
-                              time: "Yesterday",
-                              action:
-                                "Completed voice training for Grandma Eleanor",
-                              user: "System",
-                              icon: "✅",
-                              color: "text-emerald-400",
-                            },
-                            {
-                              time: "3 days ago",
-                              action: "Started new legacy for Uncle Marcus",
-                              user: "You",
-                              icon: "👤",
-                              color: "text-blue-400",
-                            },
-                            {
-                              time: "1 week ago",
-                              action: "Had 10+ conversations this week",
-                              user: "System",
-                              icon: "💬",
-                              color: "text-purple-400",
-                            },
-                          ].map((activity, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-start space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all"
-                            >
-                              <div
-                                className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ${activity.color}`} // ✅ Fixed: Backticks around ${activity.color}
-                              >
-                                {activity.icon}
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm text-white/70">
-                                  {activity.action}
-                                </p>
-                                <p className="text-xs text-white/50">
-                                  {activity.time} • {activity.user}
-                                </p>
-                              </div>
+                          {activities.length === 0 ? (
+                            <div className="text-center py-12 text-white/50">
+                              No recent activity yet.
                             </div>
-                          ))}
+                          ) : (
+                            activities.map((activity) => {
+                              const getIconAndColor = () => {
+                                switch (activity.type) {
+                                  case "legacy_created":
+                                    return {
+                                      icon: "👤",
+                                      color: "text-blue-400",
+                                    };
+                                  case "conversation_sent":
+                                    return {
+                                      icon: "💬",
+                                      color: "text-purple-400",
+                                    };
+                                  case "voice_training_complete":
+                                    return {
+                                      icon: "🎙️",
+                                      color: "text-pink-400",
+                                    };
+                                  case "memory_added":
+                                    return {
+                                      icon: "💾",
+                                      color: "text-green-400",
+                                    };
+                                  default:
+                                    return {
+                                      icon: "📝",
+                                      color: "text-gray-400",
+                                    };
+                                }
+                              };
+
+                              const { icon, color } = getIconAndColor();
+
+                              return (
+                                <div
+                                  key={activity._id}
+                                  className="flex items-start space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all"
+                                >
+                                  <div
+                                    className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ${color}`}
+                                  >
+                                    {icon}
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm text-white/70">
+                                      {activity.message}
+                                    </p>
+                                    <p className="text-xs text-white/50">
+                                      {new Date(
+                                        activity.createdAt
+                                      ).toLocaleString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        hour: "numeric",
+                                        minute: "2-digit",
+                                        hour12: true,
+                                      })}{" "}
+                                      • You
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })
+                          )}
                         </div>
                       </div>
                     </div>
@@ -926,7 +961,9 @@ const DashboardPage = () => {
                       to={action.path}
                       className={`w-14 h-14 rounded-full bg-gradient-to-r ${action.color} text-white flex items-center justify-center text-lg shadow-lg hover:scale-110 transition-all duration-300 transform`} // ✅ Fixed: Added backticks around ${action.color}
                       style={{
-                        animation: `slideIn 0.3s ease-out ${action.id * 0.1}s both`, // ✅ Fixed: Backticks around ${action.id * 0.1}s
+                        animation: `slideIn 0.3s ease-out ${
+                          action.id * 0.1
+                        }s both`, // ✅ Fixed: Backticks around ${action.id * 0.1}s
                       }}
                     >
                       {action.icon}
