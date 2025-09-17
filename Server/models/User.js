@@ -1,5 +1,6 @@
 // server/models/User.js
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -44,6 +45,11 @@ const userSchema = new mongoose.Schema({
       message: 'Avatar must be a valid URL'
     }
   },
+  name: {
+    type: String,
+    trim: true,
+    default: ''
+  },
   bio: {
     type: String,
     default: '',
@@ -65,6 +71,12 @@ const userSchema = new mongoose.Schema({
     },
     default: 'private'
   },
+  streak: {
+    currentStreak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
+    lastActiveDate: { type: Date, default: Date.now },
+    streakUpdatedToday: { type: Boolean, default: false }
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -85,7 +97,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Add indexes
+// Indexes
 userSchema.index({ email: 1 });
 userSchema.index({ googleId: 1 });
 

@@ -43,10 +43,28 @@ const legacySchema = new mongoose.Schema({
   totalMemories: {
     type: Number,
     default: 0,
+    min: 0
   },
   voiceTraining: {
     type: Number,
     default: 0,
+    min: 0,
+    max: 100
+  },
+  photoCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  audioCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  },
+  textCount: {
+    type: Number,
+    default: 0,
+    min: 0
   },
   gradient: {
     type: String,
@@ -54,17 +72,41 @@ const legacySchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'inactive'],
-    default: 'active',
+    enum: ['active', 'inactive', 'training'],
+    default: 'active'
   },
-
-  photoCount: { type: Number, default: 0 },     // number of photos uploaded
-  audioCount: { type: Number, default: 0 },     // number of voice recordings
-  textCount: { type: Number, default: 0 },      // number of text memories (stories, notes)
+  
+  // Training data for AI personality
+  personalityTraits: {
+    warmth: { type: Number, default: 70, min: 0, max: 100 },
+    humor: { type: Number, default: 50, min: 0, max: 100 },
+    wisdom: { type: Number, default: 80, min: 0, max: 100 },
+    patience: { type: Number, default: 60, min: 0, max: 100 },
+    curiosity: { type: Number, default: 40, min: 0, max: 100 }
+  },
+  trainingData: {
+    textSamples: [{ type: String }], // Text memories/stories for training
+    voiceSamples: [{ 
+      filename: String,
+      duration: Number,
+      transcription: String,
+      emotionalTone: String
+    }],
+    conversationStyle: {
+      commonPhrases: [{ type: String }],
+      vocabulary: [{ type: String }],
+      emotionalPatterns: [{ type: String }]
+    }
+  },
+  aiModelStatus: {
+    type: String,
+    enum: ['untrained', 'training', 'ready', 'error'],
+    default: 'untrained'
+  }
 }, { timestamps: true });
 
 // Optional: Add indexes for performance
 legacySchema.index({ userId: 1 });
 legacySchema.index({ createdAt: -1 });
 
-module.exports = mongoose.model('Legacy', legacySchema); // 👈 THIS IS THE MODEL
+module.exports = mongoose.model('Legacy', legacySchema);

@@ -17,6 +17,11 @@ const conversationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  messageType: {
+    type: String,
+    enum: ['user', 'ai'],
+    default: 'user',
+  },
   time: {
     type: String,
     default: 'Just now',
@@ -27,9 +32,14 @@ const conversationSchema = new mongoose.Schema({
   },
   emotionalTone: {
     type: String,
-    enum: ['joyful', 'nostalgic', 'loving', 'wise', 'peaceful', 'reflective'],
+    enum: ['joyful', 'nostalgic', 'loving', 'wise', 'peaceful', 'reflective', 'neutral', 'comforting'],
     default: 'nostalgic',
   },
+  memoryReference: {
+    id: String,
+    type: String,
+    preview: String
+  }
 }, { timestamps: true });
 
 // Optional: Add indexes

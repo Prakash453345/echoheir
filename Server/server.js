@@ -8,7 +8,7 @@ const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const cors = require('cors');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-
+const path = require('path'); // 👈 ADD THIS LINE
 
 const Legacy = require('./models/Legacy');
 const Conversation = require('./models/Conversation');
@@ -17,15 +17,12 @@ const dashboardRoutes = require('./routes/dashboard');
 
 const legacyRoutes = require('./routes/legacy');          // 👈 NEW
 const conversationRoutes = require('./routes/conversation'); // 👈 NEW
+const chatRoutes = require('./routes/chat');
 
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/legacy', legacyRoutes);           // 👈 NEW
-app.use('/api/conversation', conversationRoutes); // 👈 NEW
 
 // Middleware
 app.use(cors({
@@ -41,6 +38,10 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Serve static files for uploads
+app.use('/uploads', express.static('uploads'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Session configuration — CRITICAL FOR AUTH
 app.use(session({
@@ -67,7 +68,7 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/echoheir'
   .then(() => console.log('MongoDB connected successfully'))
   .catch(err => console.log('MongoDB connection error:', err));
 
-// User Schema — NO NAME FIELD. NO VALIDATION ERRORS.
+// User Schema with name and streak tracking
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
@@ -76,6 +77,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     trim: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address']
+  },
+  name: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Name cannot exceed 100 characters']
   },
   password: {
     type: String,
@@ -132,6 +138,12 @@ const userSchema = new mongoose.Schema({
     },
     default: 'private'
   },
+  streak: {
+    currentStreak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
+    lastActiveDate: { type: Date, default: Date.now },
+    streakUpdatedToday: { type: Boolean, default: false }
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -177,6 +189,13 @@ passport.use(new LocalStrategy(
   }
 ));
 
+app.use('/api/legacy', legacyRoutes);       // Save legacy
+app.use('/api/conversation', conversationRoutes); // Save messages
+app.use('/api/dashboard', dashboardRoutes); // Get dashboard data
+app.use('/api/memories', require('./routes/memories')); // Memories API
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // Serve uploaded files
+
+
 // ✅ FIXED Google OAuth Strategy — NO NAME FIELD
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
@@ -188,12 +207,14 @@ passport.use(new GoogleStrategy({
     try {
       const email = profile.emails[0].value;
 
-      // Check if user exists by email or googleId
       let user = await User.findOne({ email });
       if (user && !user.googleId) {
         user.googleId = profile.id;
         if (!user.avatar && profile.photos && profile.photos[0]) {
           user.avatar = profile.photos[0].value;
+        }
+        if (!user.name && profile.displayName) {
+          user.name = profile.displayName; // 👈 Save full name
         }
         await user.save();
         return done(null, user);
@@ -202,14 +223,20 @@ passport.use(new GoogleStrategy({
       user = await User.findOne({ googleId: profile.id });
       if (user) return done(null, user);
 
-      // Create NEW user WITHOUT name field
       user = new User({
         email: email,
         googleId: profile.id,
         avatar: (profile.photos && profile.photos[0]) ? profile.photos[0].value : null,
+        name: profile.displayName || '', // 👈 Save displayName from Google
         bio: '',
         relationship: 'Other',
-        privacyLevel: 'private'
+        privacyLevel: 'private',
+        streak: {
+          currentStreak: 0,
+          longestStreak: 0,
+          lastActiveDate: new Date(),
+          streakUpdatedToday: false
+        }
       });
 
       await user.save();
@@ -228,10 +255,26 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
+    // Validate ObjectId format first
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      console.log('❌ Invalid ObjectId in session:', id);
+      return done(null, false); // This will log the user out
+    }
+
     const user = await User.findById(id).select('-password');
+
+    if (!user) {
+      console.log('❌ User not found for ID:', id);
+      return done(null, false); // User was deleted, log them out
+    }
+
+    console.log('✅ User deserialized successfully:', user.email);
     done(null, user);
+
   } catch (error) {
-    done(error);
+    console.error('❌ Deserialization error:', error.message);
+    // Don't pass the error, just return false to log them out
+    done(null, false);
   }
 });
 
@@ -422,4 +465,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
-module.exports = app;
+module.exports = app;

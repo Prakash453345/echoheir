@@ -43,3 +43,18 @@
 //     done(err, user);
 //   });
 // });
+
+// Authentication middleware - simplified for development
+const authenticateUser = (req, res, next) => {
+  // For development, create a mock user
+  req.user = {
+    _id: '507f1f77bcf86cd799439011', // Mock user ID
+    name: 'Test User',
+    email: 'test@example.com'
+  };
+  return next();
+};
+
+module.exports = {
+  authenticateUser
+};

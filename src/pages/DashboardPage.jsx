@@ -149,6 +149,64 @@ const DashboardPage = () => {
     setMemoryMood(randomMood);
   }, []);
 
+  // Fetch dashboard data on component mount
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/dashboard', {
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          setUser({
+            name: data.user.displayName || data.user.name || getDisplayNameFromEmail(data.user.email),
+            email: data.user.email,
+            avatar: data.user.avatar,
+            displayName: data.user.displayName || data.user.name || getDisplayNameFromEmail(data.user.email),
+            streak: data.user.streak?.currentStreak || 0,
+            longestStreak: data.user.streak?.longestStreak || 0
+          });
+
+          setLegacies(data.legacies || []);
+          setConversations(data.conversations || []);
+          setActivities(data.activities || []);
+        } else {
+          console.error('Failed to fetch dashboard data');
+          setUser({ 
+            name: 'User', 
+            email: '', 
+            avatar: null, 
+            displayName: 'User',
+            streak: 0, 
+            longestStreak: 0 
+          });
+          setLegacies([]);
+          setConversations([]);
+          setActivities([]);
+        }
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        setUser({ 
+          name: 'User', 
+          email: '', 
+          avatar: null, 
+          displayName: 'User',
+          streak: 0, 
+          longestStreak: 0 
+        });
+        setLegacies([]);
+        setConversations([]);
+        setActivities([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
   // Quick actions
   const quickActions = [
     {
@@ -245,22 +303,23 @@ const DashboardPage = () => {
             } bg-black/20 backdrop-blur-xl border-r border-white/10 flex flex-col transition-all duration-300 ease-in-out`}
           >
             {/* User Profile Section */}
-            <div className="p-6 border-b border-white/10">
+            <div className="p-4 border-b border-white/10">
               <div className="flex items-center space-x-3">
-                <img
-                  src={
-                    user?.avatar ||
-                    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face"
-                  }
-                  alt="User"
-                  className="w-12 h-12 rounded-full border-2 border-white/30"
-                />
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt="User"
+                    className="w-12 h-12 rounded-full border-2 border-white/30"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-violet-500 to-pink-500 flex items-center justify-center text-white text-lg font-semibold border-2 border-white/30">
+                    {user?.email ? user.email.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                )}
                 {!sidebarCollapsed && (
                   <div>
                     <p className="font-medium text-white">
-                      {user
-                        ? getDisplayNameFromEmail(user.email)
-                        : "Prakash"}
+                      {user?.displayName || user?.name || (user?.email ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'User')}
                     </p>
                     <p className="text-xs text-white/60">Online</p>
                   </div>
@@ -271,7 +330,7 @@ const DashboardPage = () => {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-white/60">Legacies</span>
                     <span className="text-white font-medium animate-pulse">
-                      2
+                      {legacies.length}
                     </span>
                   </div>
                 </div>
@@ -332,7 +391,7 @@ const DashboardPage = () => {
                       : currentTime.getHours() < 18
                       ? "Afternoon"
                       : "Evening"}
-                    , Prakash
+                    , {user?.displayName || user?.name || (user?.email ? user.email.split('@')[0].charAt(0).toUpperCase() + user.email.split('@')[0].slice(1) : 'User')}
                   </h1>
                   <p className="text-white/70">
                     Here's your Memory Mission Control
@@ -803,47 +862,36 @@ const DashboardPage = () => {
                             </div>
                           ) : (
                             activities.map((activity) => {
-                              const getIconAndColor = () => {
-                                switch (activity.type) {
-                                  case "legacy_created":
-                                    return {
-                                      icon: "👤",
-                                      color: "text-blue-400",
-                                    };
-                                  case "conversation_sent":
-                                    return {
-                                      icon: "💬",
-                                      color: "text-purple-400",
-                                    };
-                                  case "voice_training_complete":
-                                    return {
-                                      icon: "🎙️",
-                                      color: "text-pink-400",
-                                    };
-                                  case "memory_added":
-                                    return {
-                                      icon: "💾",
-                                      color: "text-green-400",
-                                    };
+                              const getActivityIcon = (type) => {
+                                switch (type) {
+                                  case 'memory_added':
+                                    return '📸';
+                                  case 'conversation':
+                                    return '💬';
+                                  case 'legacy_created':
+                                    return '✨';
                                   default:
-                                    return {
-                                      icon: "📝",
-                                      color: "text-gray-400",
-                                    };
+                                    return '📝';
                                 }
                               };
 
-                              const { icon, color } = getIconAndColor();
+                              const getActivityColor = (type) => {
+                                switch (type) {
+                                  case 'memory_added':
+                                    return 'bg-blue-500';
+                                  case 'conversation':
+                                    return 'bg-green-500';
+                                  case 'legacy_created':
+                                    return 'bg-purple-500';
+                                  default:
+                                    return 'bg-gray-500';
+                                }
+                              };
 
                               return (
-                                <div
-                                  key={activity._id}
-                                  className="flex items-start space-x-3 p-3 rounded-xl hover:bg-white/10 transition-all"
-                                >
-                                  <div
-                                    className={`w-8 h-8 rounded-full bg-white/10 flex items-center justify-center ${color}`}
-                                  >
-                                    {icon}
+                                <div key={activity._id} className="flex items-start space-x-3">
+                                  <div className={`w-8 h-8 rounded-full ${getActivityColor(activity.type)} flex items-center justify-center text-sm`}>
+                                    {getActivityIcon(activity.type)}
                                   </div>
                                   <div className="flex-1">
                                     <p className="text-sm text-white/70">
@@ -975,7 +1023,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Global Animations */}
-          <style jsx global>{`
+          <style jsx="true" global="true">{`
             @keyframes float {
               0%,
               100% {
